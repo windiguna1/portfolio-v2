@@ -45,6 +45,14 @@ const projectSchema = new mongoose.Schema(
       ],
       default: [],
     },
+    youtubeUrl: {
+      type: String,
+      trim: true,
+    },
+    videoUrl: {
+      type: String,
+      trim: true,
+    },
   },
   { timestamps: true }
 );

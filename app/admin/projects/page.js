@@ -5,9 +5,12 @@ import { Trash2, Edit, Image as ImageIcon, Plus, X, Lock } from 'lucide-react';
 
 export default function ProjectsPage() {
   const [projects, setProjects] = useState([]);
-  const [form, setForm] = useState({ title: '', description: '', content: '', demoUrl: '', repoUrl: '', order: 0, proprietary: false });
+  const [form, setForm] = useState({ title: '', description: '', content: '', demoUrl: '', repoUrl: '', order: 0, proprietary: false, youtubeUrl: '' });
   const [images, setImages] = useState([]);
   const [existingImages, setExistingImages] = useState([]);
+  const [videoFile, setVideoFile] = useState(null);
+  const [existingVideo, setExistingVideo] = useState('');
+  const [removeVideo, setRemoveVideo] = useState(false);
   const [techStack, setTechStack] = useState([]);
   const [availableTechs, setAvailableTechs] = useState([]);
   const [editingId, setEditingId] = useState(null);
@@ -40,6 +43,10 @@ export default function ProjectsPage() {
     formData.append('repoUrl', form.repoUrl);
     formData.append('order', form.order);
     formData.append('proprietary', form.proprietary);
+    formData.append('youtubeUrl', form.youtubeUrl);
+    
+    if (videoFile) formData.append('videoFile', videoFile);
+    if (removeVideo) formData.append('removeVideo', 'true');
     
     // Append new image files
     Array.from(images).forEach(file => {
@@ -74,9 +81,13 @@ export default function ProjectsPage() {
       demoUrl: proj.demoUrl || '',
       repoUrl: proj.repoUrl || '',
       order: proj.order || 0,
-      proprietary: proj.proprietary || false
+      proprietary: proj.proprietary || false,
+      youtubeUrl: proj.youtubeUrl || ''
     });
     setExistingImages(proj.images || []);
+    setExistingVideo(proj.videoUrl || '');
+    setVideoFile(null);
+    setRemoveVideo(false);
     setTechStack(proj.techStack || []);
     setImages([]);
     setEditingId(proj._id);
@@ -89,9 +100,12 @@ export default function ProjectsPage() {
   };
 
   const resetForm = () => {
-    setForm({ title: '', description: '', content: '', demoUrl: '', repoUrl: '', order: 0, proprietary: false });
+    setForm({ title: '', description: '', content: '', demoUrl: '', repoUrl: '', order: 0, proprietary: false, youtubeUrl: '' });
     setImages([]);
     setExistingImages([]);
+    setVideoFile(null);
+    setExistingVideo('');
+    setRemoveVideo(false);
     setTechStack([]);
     setEditingId(null);
     setLoading(false);
@@ -211,6 +225,35 @@ export default function ProjectsPage() {
                   <Lock size={14} className="text-amber-600" />
                   Proprietary Project (source code not publicly available)
                 </label>
+              </div>
+
+              {/* Video & Media Options */}
+              <div className="p-4 bg-gray-50 rounded-lg border border-gray-200 mt-2">
+                <label className="block text-sm font-bold text-gray-900 mb-4">Video & Media Options</label>
+                
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">YouTube Embed URL</label>
+                  <input type="url" placeholder="https://www.youtube.com/watch?v=..." value={form.youtubeUrl} onChange={e => setForm({...form, youtubeUrl: e.target.value})} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 transition-colors text-sm" />
+                  <p className="text-xs text-gray-400 mt-1">If provided, this YouTube video will have priority and be embedded as the main media.</p>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Upload Video File</label>
+                  <input type="file" accept="video/*" onChange={e => setVideoFile(e.target.files[0])} className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 transition-all cursor-pointer mb-2" />
+                  
+                  {existingVideo && !removeVideo && (
+                    <div className="mt-2 bg-white border border-gray-200 rounded-lg p-3 flex flex-col sm:flex-row items-center gap-3">
+                      <video src={existingVideo} className="h-20 rounded bg-black" />
+                      <div className="flex flex-col flex-1">
+                        <span className="text-sm font-medium text-gray-700">Existing Uploaded Video</span>
+                        <button type="button" onClick={() => setRemoveVideo(true)} className="text-xs text-red-600 hover:text-red-800 text-left mt-1">Remove existing video</button>
+                      </div>
+                    </div>
+                  )}
+                  {removeVideo && existingVideo && (
+                    <p className="text-xs text-amber-600 font-medium mt-1">Existing video will be removed upon save.</p>
+                  )}
+                </div>
               </div>
               
               <div className="p-4 bg-gray-50 rounded-lg border border-gray-200 mt-2">

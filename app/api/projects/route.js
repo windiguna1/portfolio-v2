@@ -34,6 +34,24 @@ export async function POST(req) {
     const repoUrl = formData.get('repoUrl');
     const order = formData.get('order') || 0;
     const proprietary = formData.get('proprietary') === 'true';
+    const youtubeUrl = formData.get('youtubeUrl') || '';
+    
+    let videoUrl = '';
+    const videoFile = formData.get('videoFile');
+    if (videoFile && typeof videoFile === 'object' && videoFile.name) {
+      const bytes = await videoFile.arrayBuffer();
+      const buffer = Buffer.from(bytes);
+      const uploadResult = await new Promise((resolve, reject) => {
+        cloudinary.uploader.upload_stream(
+          { folder: 'portfolio/projects/videos', resource_type: 'video' },
+          (error, result) => {
+            if (error) reject(error);
+            else resolve(result);
+          }
+        ).end(buffer);
+      });
+      videoUrl = uploadResult.secure_url;
+    }
     
     const images = [];
     const imageFiles = formData.getAll('images');
@@ -55,7 +73,7 @@ export async function POST(req) {
     const techStack = parseTechStackData(formData);
 
     const project = await Project.create({
-      title, description, content, demoUrl, repoUrl, order, proprietary, images, techStack,
+      title, description, content, demoUrl, repoUrl, order, proprietary, images, techStack, youtubeUrl, videoUrl
     });
 
     return NextResponse.json(project, { status: 201 });

@@ -36,7 +36,28 @@ export async function PUT(req, { params }) {
       repoUrl: formData.get('repoUrl'),
       order: formData.get('order') || 0,
       proprietary: formData.get('proprietary') === 'true',
+      youtubeUrl: formData.get('youtubeUrl') || '',
     };
+
+    if (formData.get('removeVideo') === 'true') {
+      updateData.videoUrl = '';
+    }
+
+    const videoFile = formData.get('videoFile');
+    if (videoFile && typeof videoFile === 'object' && videoFile.name) {
+      const bytes = await videoFile.arrayBuffer();
+      const buffer = Buffer.from(bytes);
+      const uploadResult = await new Promise((resolve, reject) => {
+        cloudinary.uploader.upload_stream(
+          { folder: 'portfolio/projects/videos', resource_type: 'video' },
+          (error, result) => {
+            if (error) reject(error);
+            else resolve(result);
+          }
+        ).end(buffer);
+      });
+      updateData.videoUrl = uploadResult.secure_url;
+    }
 
     // Keep existing images passed from client
     const existingImages = formData.getAll('existingImages') || [];
