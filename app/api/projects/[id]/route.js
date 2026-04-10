@@ -35,7 +35,29 @@ export async function PUT(req, { params }) {
       demoUrl: formData.get('demoUrl'),
       repoUrl: formData.get('repoUrl'),
       order: formData.get('order') || 0,
+      proprietary: formData.get('proprietary') === 'true',
+      youtubeUrl: formData.get('youtubeUrl') || '',
     };
+
+    if (formData.get('removeVideo') === 'true') {
+      updateData.videoUrl = '';
+    }
+
+    const videoFile = formData.get('videoFile');
+    if (videoFile && typeof videoFile === 'object' && videoFile.name) {
+      const bytes = await videoFile.arrayBuffer();
+      const buffer = Buffer.from(bytes);
+      const uploadResult = await new Promise((resolve, reject) => {
+        cloudinary.uploader.upload_stream(
+          { folder: 'portfolio/projects/videos', resource_type: 'video' },
+          (error, result) => {
+            if (error) reject(error);
+            else resolve(result);
+          }
+        ).end(buffer);
+      });
+      updateData.videoUrl = uploadResult.secure_url;
+    }
 
     // Keep existing images passed from client
     const existingImages = formData.getAll('existingImages') || [];
@@ -58,6 +80,9 @@ export async function PUT(req, { params }) {
 
     updateData.images = [...existingImages, ...uploadedImages];
 
+    // Process tech stack (logos are URLs now)
+    updateData.techStack = parseTechStackData(formData);
+
     const project = await Project.findByIdAndUpdate(id, updateData, { new: true, runValidators: true });
     return NextResponse.json(project);
   } catch (error) {
@@ -76,5 +101,19 @@ export async function DELETE(req, { params }) {
     return NextResponse.json({ success: true });
   } catch (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}
+
+function parseTechStackData(formData) {
+  const techStackDataStr = formData.get('techStackData');
+  if (!techStackDataStr) return [];
+
+  try {
+    const techStackData = JSON.parse(techStackDataStr);
+    return techStackData
+      .filter(item => item.name)
+      .map(item => ({ name: item.name, logo: item.logo || '' }));
+  } catch {
+    return [];
   }
 }

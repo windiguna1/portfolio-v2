@@ -1,5 +1,19 @@
 @import "tailwindcss";
 
+html {
+  scroll-behavior: smooth;
+}
+
+/* Offset sections for fixed navbar */
+[id] {
+  scroll-margin-top: 100px;
+}
+@media (min-width: 640px) {
+  [id] {
+    scroll-margin-top: 80px;
+  }
+}
+
 @theme {
   --color-accent: #2563eb;
   --color-accent-hover: #1d4ed8;

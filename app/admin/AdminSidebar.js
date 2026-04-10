@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, Briefcase, FileText, User, LogOut } from 'lucide-react';
+import { LayoutDashboard, Briefcase, FileText, User, LogOut, Calendar, Cpu } from 'lucide-react';
 import { signOut } from 'next-auth/react';
 
 export default function AdminSidebar() {
@@ -12,6 +12,8 @@ export default function AdminSidebar() {
     { label: 'Profile Settings', href: '/admin/profile', icon: User },
     { label: 'Work Experience', href: '/admin/experience', icon: Briefcase },
     { label: 'Projects', href: '/admin/projects', icon: FileText },
+    { label: 'Activities', href: '/admin/activities', icon: Calendar },
+    { label: 'Tech Stack', href: '/admin/techs', icon: Cpu },
   ];
 
   return (

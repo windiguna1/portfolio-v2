@@ -33,39 +33,65 @@ export async function POST(req) {
     const demoUrl = formData.get('demoUrl');
     const repoUrl = formData.get('repoUrl');
     const order = formData.get('order') || 0;
+    const proprietary = formData.get('proprietary') === 'true';
+    const youtubeUrl = formData.get('youtubeUrl') || '';
+    
+    let videoUrl = '';
+    const videoFile = formData.get('videoFile');
+    if (videoFile && typeof videoFile === 'object' && videoFile.name) {
+      const bytes = await videoFile.arrayBuffer();
+      const buffer = Buffer.from(bytes);
+      const uploadResult = await new Promise((resolve, reject) => {
+        cloudinary.uploader.upload_stream(
+          { folder: 'portfolio/projects/videos', resource_type: 'video' },
+          (error, result) => {
+            if (error) reject(error);
+            else resolve(result);
+          }
+        ).end(buffer);
+      });
+      videoUrl = uploadResult.secure_url;
+    }
     
     const images = [];
-    // Process image uploads
-    const imageFiles = formData.getAll('images'); // Multiple files
+    const imageFiles = formData.getAll('images');
     for (const file of imageFiles) {
       if (file && typeof file === 'object' && file.name) {
         const bytes = await file.arrayBuffer();
         const buffer = Buffer.from(bytes);
-        
-        // Upload to Cloudinary using a promise wrapper
         const uploadResult = await new Promise((resolve, reject) => {
           cloudinary.uploader.upload_stream({ folder: 'portfolio/projects' }, (error, result) => {
             if (error) reject(error);
             else resolve(result);
           }).end(buffer);
         });
-        
         images.push(uploadResult.secure_url);
       }
     }
 
+    // Process tech stack (logos are now URLs, not files)
+    const techStack = parseTechStackData(formData);
+
     const project = await Project.create({
-      title,
-      description,
-      content,
-      demoUrl,
-      repoUrl,
-      order,
-      images
+      title, description, content, demoUrl, repoUrl, order, proprietary, images, techStack, youtubeUrl, videoUrl
     });
 
     return NextResponse.json(project, { status: 201 });
   } catch (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}
+
+function parseTechStackData(formData) {
+  const techStackDataStr = formData.get('techStackData');
+  if (!techStackDataStr) return [];
+
+  try {
+    const techStackData = JSON.parse(techStackDataStr);
+    return techStackData
+      .filter(item => item.name)
+      .map(item => ({ name: item.name, logo: item.logo || '' }));
+  } catch {
+    return [];
   }
 }
