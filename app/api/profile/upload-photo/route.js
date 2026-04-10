@@ -1,10 +1,9 @@
 import { NextResponse } from 'next/server';
-import { writeFile, mkdir } from 'fs/promises';
-import path from 'path';
 import connectToDatabase from '@/lib/mongodb';
 import Profile from '@/models/Profile';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import cloudinary from '@/lib/cloudinary';
 
 export const dynamic = 'force-dynamic';
 
@@ -23,20 +22,18 @@ export async function POST(req) {
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    // Ensure upload directory exists
-    const uploadDir = path.join(process.cwd(), 'public', 'images');
-    await mkdir(uploadDir, { recursive: true });
-
-    // Save with unique filename
-    const ext = file.name.split('.').pop();
-    const filename = `profile-${Date.now()}.${ext}`;
-    const filepath = path.join(uploadDir, filename);
-    await writeFile(filepath, buffer);
+    // Upload to Cloudinary using a promise wrapper
+    const uploadResult = await new Promise((resolve, reject) => {
+      cloudinary.uploader.upload_stream({ folder: 'portfolio/profile' }, (error, result) => {
+        if (error) reject(error);
+        else resolve(result);
+      }).end(buffer);
+    });
 
     // Update profile photo URL in DB
     await connectToDatabase();
     let profile = await Profile.findOne();
-    const photoUrl = `/images/${filename}`;
+    const photoUrl = uploadResult.secure_url;
 
     if (profile) {
       profile.photo = photoUrl;
