@@ -36,6 +36,10 @@ const profileSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
+    photo: {
+      type: String,
+      trim: true,
+    },
   },
   { timestamps: true }
 );

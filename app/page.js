@@ -101,42 +101,101 @@ export default async function Home() {
         {/* ─── Hero ─── */}
         <FadeIn direction="up" delay={0.1}>
           <section className="min-h-[90vh] flex flex-col justify-center">
-            <div className="flex items-center gap-3 mb-6 md:mb-8">
-              <div className="w-6 md:w-8 h-px bg-stone-400" />
-              <span className="text-[10px] md:text-[11px] font-semibold tracking-[0.25em] uppercase text-stone-500">
-                Portfolio
-              </span>
-            </div>
+            <div className="flex flex-col-reverse md:flex-row md:items-center md:justify-between gap-10 md:gap-16">
 
-            <h1 className="text-[clamp(2.2rem,7.5vw,6rem)] font-semibold leading-[1.08] tracking-[-0.03em] text-stone-900 mb-6 md:mb-8 max-w-4xl">
-              {profile.title}
-            </h1>
+              {/* Left: Text Content */}
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-3 mb-6 md:mb-8">
+                  <div className="w-6 md:w-8 h-px bg-stone-400" />
+                  <span className="text-[10px] md:text-[11px] font-semibold tracking-[0.25em] uppercase text-stone-500">
+                    Portfolio
+                  </span>
+                </div>
 
-            <p className="text-[15px] md:text-[17px] text-stone-500 leading-relaxed max-w-2xl mb-7 md:mb-8" style={{ textAlign: 'justify' }}>
-              {profile.bio}
-            </p>
+                <h1 className="text-[clamp(2rem,6vw,5rem)] font-semibold leading-[1.08] tracking-[-0.03em] text-stone-900 mb-6 md:mb-8">
+                  {profile.title}
+                </h1>
 
-            <div className="flex flex-wrap gap-3">
-              <a
-                href="#projects"
-                className="inline-flex items-center gap-2 px-5 md:px-6 py-2.5 md:py-3 rounded-full bg-stone-900 text-white text-sm font-medium hover:bg-stone-700 transition-all hover:-translate-y-0.5"
-              >
-                View Work
-                <span className="opacity-50">↓</span>
-              </a>
-              {profile.email && (
-                <a
-                  href={`mailto:${profile.email}`}
-                  className="inline-flex items-center px-5 md:px-6 py-2.5 md:py-3 rounded-full border border-stone-300 text-stone-700 text-sm font-medium hover:border-stone-700 hover:bg-white transition-all hover:-translate-y-0.5"
-                >
-                  Get in Touch
-                </a>
+                <p className="text-[15px] md:text-[17px] text-stone-500 leading-relaxed max-w-xl mb-7 md:mb-8" style={{ textAlign: 'justify' }}>
+                  {profile.bio}
+                </p>
+
+                <div className="flex flex-wrap gap-3">
+                  <a
+                    href="#projects"
+                    className="inline-flex items-center gap-2 px-5 md:px-6 py-2.5 md:py-3 rounded-full bg-stone-900 text-white text-sm font-medium hover:bg-stone-700 transition-all hover:-translate-y-0.5"
+                  >
+                    View Work
+                    <span className="opacity-50">↓</span>
+                  </a>
+                  {profile.email && (
+                    <a
+                      href={`mailto:${profile.email}`}
+                      className="inline-flex items-center px-5 md:px-6 py-2.5 md:py-3 rounded-full border border-stone-300 text-stone-700 text-sm font-medium hover:border-stone-700 hover:bg-white transition-all hover:-translate-y-0.5"
+                    >
+                      Get in Touch
+                    </a>
+                  )}
+                </div>
+
+                <div className="mt-12 md:mt-16 flex items-center gap-3 text-stone-400">
+                  <div className="w-px h-8 md:h-10 bg-stone-300" />
+                  <span className="text-[10px] md:text-[11px] font-medium tracking-[0.2em] uppercase">Scroll</span>
+                </div>
+              </div>
+
+              {/* Right: Profile Photo */}
+              {profile.photo && (
+                <div className="flex-shrink-0 flex justify-center md:justify-end">
+                  <div className="relative">
+                    {/* Decorative background ring */}
+                    <div
+                      className="absolute inset-0 rounded-full"
+                      style={{
+                        background: 'linear-gradient(135deg, #e7e5e4 0%, #d6d3d1 100%)',
+                        transform: 'scale(1.06) rotate(3deg)',
+                        zIndex: 0,
+                      }}
+                    />
+                    {/* Subtle outer glow */}
+                    <div
+                      className="absolute inset-0 rounded-full"
+                      style={{
+                        boxShadow: '0 20px 60px rgba(0,0,0,0.12), 0 4px 16px rgba(0,0,0,0.08)',
+                        zIndex: 1,
+                      }}
+                    />
+                    {/* Photo */}
+                    <div
+                      className="relative overflow-hidden rounded-full border-4 border-white"
+                      style={{
+                        width: 'clamp(200px, 28vw, 320px)',
+                        height: 'clamp(200px, 28vw, 320px)',
+                        zIndex: 2,
+                        boxShadow: '0 8px 32px rgba(0,0,0,0.10)',
+                      }}
+                    >
+                      <img
+                        src={profile.photo}
+                        alt={profile.name}
+                        style={{
+                          width: '100%',
+                          height: '100%',
+                          objectFit: 'cover',
+                          objectPosition: 'center top',
+                          display: 'block',
+                        }}
+                      />
+                    </div>
+                    {/* Small decorative dot badge */}
+                    <div
+                      className="absolute bottom-3 right-3 w-5 h-5 rounded-full bg-stone-900 border-2 border-white"
+                      style={{ zIndex: 3 }}
+                    />
+                  </div>
+                </div>
               )}
-            </div>
 
-            <div className="mt-12 md:mt-16 flex items-center gap-3 text-stone-400">
-              <div className="w-px h-8 md:h-10 bg-stone-300" />
-              <span className="text-[10px] md:text-[11px] font-medium tracking-[0.2em] uppercase">Scroll</span>
             </div>
           </section>
         </FadeIn>
