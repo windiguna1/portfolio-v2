@@ -160,7 +160,7 @@ export default async function Home() {
                   <div className="relative">
                     {/* Decorative background ring */}
                     <div
-                      className="absolute inset-0 rounded-full"
+                      className="absolute inset-0 rounded-3xl"
                       style={{
                         background: 'linear-gradient(135deg, #e7e5e4 0%, #d6d3d1 100%)',
                         transform: 'scale(1.06) rotate(3deg)',
@@ -169,7 +169,7 @@ export default async function Home() {
                     />
                     {/* Subtle outer glow */}
                     <div
-                      className="absolute inset-0 rounded-full"
+                      className="absolute inset-0 rounded-3xl"
                       style={{
                         boxShadow: '0 20px 60px rgba(0,0,0,0.12), 0 4px 16px rgba(0,0,0,0.08)',
                         zIndex: 1,
@@ -177,7 +177,7 @@ export default async function Home() {
                     />
                     {/* Photo */}
                     <div
-                      className="relative overflow-hidden rounded-full border-4 border-white"
+                      className="relative overflow-hidden rounded-3xl border-4 border-white"
                       style={{
                         width: 'clamp(200px, 28vw, 320px)',
                         height: 'clamp(200px, 28vw, 320px)',
