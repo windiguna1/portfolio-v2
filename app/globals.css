@@ -1,5 +1,21 @@
 @import "tailwindcss";
 
+/* ─── Batik Background Pattern ─── */
+.batik-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+  background-color: #FAFAF8;
+  background-image:
+    /* Motif batik kawung: lingkaran-lingkaran berpola */
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60'%3E%3Ccircle cx='15' cy='15' r='10' fill='none' stroke='%23f97316' stroke-width='0.8' opacity='0.35'/%3E%3Ccircle cx='45' cy='15' r='10' fill='none' stroke='%23f97316' stroke-width='0.8' opacity='0.35'/%3E%3Ccircle cx='15' cy='45' r='10' fill='none' stroke='%23f97316' stroke-width='0.8' opacity='0.35'/%3E%3Ccircle cx='45' cy='45' r='10' fill='none' stroke='%23f97316' stroke-width='0.8' opacity='0.35'/%3E%3Ccircle cx='30' cy='30' r='10' fill='none' stroke='%23f97316' stroke-width='0.8' opacity='0.35'/%3E%3Cellipse cx='30' cy='15' rx='6' ry='3' fill='none' stroke='%23ea580c' stroke-width='0.6' opacity='0.25'/%3E%3Cellipse cx='30' cy='45' rx='6' ry='3' fill='none' stroke='%23ea580c' stroke-width='0.6' opacity='0.25'/%3E%3Cellipse cx='15' cy='30' rx='3' ry='6' fill='none' stroke='%23ea580c' stroke-width='0.6' opacity='0.25'/%3E%3Cellipse cx='45' cy='30' rx='3' ry='6' fill='none' stroke='%23ea580c' stroke-width='0.6' opacity='0.25'/%3E%3Ccircle cx='30' cy='30' r='3' fill='%23f97316' opacity='0.2'/%3E%3Ccircle cx='0' cy='0' r='3' fill='%23f97316' opacity='0.2'/%3E%3Ccircle cx='60' cy='0' r='3' fill='%23f97316' opacity='0.2'/%3E%3Ccircle cx='0' cy='60' r='3' fill='%23f97316' opacity='0.2'/%3E%3Ccircle cx='60' cy='60' r='3' fill='%23f97316' opacity='0.2'/%3E%3C/svg%3E"),
+    /* Lapisan motif parang diagonal tipis */
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80'%3E%3Cpath d='M0 80 L80 0' stroke='%23f97316' stroke-width='0.6' opacity='0.15'/%3E%3Cpath d='M-20 80 L60 0' stroke='%23f97316' stroke-width='0.6' opacity='0.15'/%3E%3Cpath d='M20 80 L100 0' stroke='%23f97316' stroke-width='0.6' opacity='0.15'/%3E%3Cpath d='M10 80 Q40 40 70 0' stroke='%23fb923c' stroke-width='0.8' opacity='0.15' fill='none'/%3E%3Cpath d='M30 80 Q60 40 90 0' stroke='%23fb923c' stroke-width='0.8' opacity='0.15' fill='none'/%3E%3C/svg%3E");
+  background-size: 60px 60px, 80px 80px;
+  background-repeat: repeat, repeat;
+}
+
 @theme {
   --color-accent: #2563eb;
   --color-accent-hover: #1d4ed8;
