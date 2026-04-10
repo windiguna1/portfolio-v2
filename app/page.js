@@ -3,33 +3,42 @@ import connectToDatabase from '@/lib/mongodb';
 import Profile from '@/models/Profile';
 import Experience from '@/models/Experience';
 import Project from '@/models/Project';
+import Activity from '@/models/Activity';
+import Tech from '@/models/Tech';
 import FadeIn from '@/components/FadeIn';
-import { Github, Linkedin } from 'lucide-react';
+import ActivitiesCarousel from '@/components/ActivitiesCarousel';
+import ProjectsCarousel from '@/components/ProjectsCarousel';
+import HomeTechMarquee from '@/components/HomeTechMarquee';
+import { Github, Linkedin, Mail } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
 
 async function getData() {
   await connectToDatabase();
 
-  const [profile, experiences, projects] = await Promise.all([
+  const [profile, experiences, projects, activities, techs] = await Promise.all([
     Profile.findOne().lean(),
     Experience.find().sort({ startDate: -1 }).lean(),
     Project.find().sort({ order: 1, createdAt: -1 }).lean(),
+    Activity.find().sort({ date: -1, order: 1 }).lean(),
+    Tech.find().sort({ order: 1, createdAt: 1 }).lean(),
   ]);
 
   return {
-    profile: profile || {
+    profile: profile ? JSON.parse(JSON.stringify(profile)) : {
       name: 'Your Name',
       title: 'Your Job Title',
       bio: 'Your biography goes here. Tell the world what you do.',
     },
-    experiences: experiences.map(doc => ({ ...doc, _id: doc._id.toString() })),
-    projects: projects.map(doc => ({ ...doc, _id: doc._id.toString() })),
+    experiences: JSON.parse(JSON.stringify(experiences)),
+    projects: JSON.parse(JSON.stringify(projects)),
+    activities: JSON.parse(JSON.stringify(activities)),
+    techs: JSON.parse(JSON.stringify(techs)),
   };
 }
 
 export default async function Home() {
-  const { profile, experiences, projects } = await getData();
+  const { profile, experiences, projects, activities, techs } = await getData();
 
   // Ambil kata pertama saja dari nama untuk mobile
   const firstName = profile.name?.split(' ')[0] ?? profile.name;
@@ -44,20 +53,21 @@ export default async function Home() {
       <nav className="fixed top-0 left-0 right-0 z-50 bg-[#FAFAF8]/80 backdrop-blur-md border-b border-stone-200/60">
         <div className="max-w-6xl mx-auto px-5 md:px-8 h-14 md:h-16 flex items-center justify-between">
 
-          {/* Logo: nama depan saja di mobile, nama lengkap di desktop */}
+          {/* Logo */}
           <span className="font-semibold text-sm tracking-[0.1em] uppercase text-stone-900">
             <span className="md:hidden">{firstName}</span>
             <span className="hidden md:inline">{profile.name}</span>
           </span>
 
           <div className="flex items-center gap-4 md:gap-6">
-            {/* Nav links — sembunyikan di mobile */}
             <div className="hidden sm:flex items-center gap-5 pr-5 border-r border-stone-200">
+              <a href="#about" className="text-[13px] font-medium text-stone-500 hover:text-stone-900 transition-colors">About</a>
               <a href="#experience" className="text-[13px] font-medium text-stone-500 hover:text-stone-900 transition-colors">Experience</a>
               <a href="#projects" className="text-[13px] font-medium text-stone-500 hover:text-stone-900 transition-colors">Projects</a>
+              <a href="#activities" className="text-[13px] font-medium text-stone-500 hover:text-stone-900 transition-colors">Activities</a>
+              <a href="#contact" className="text-[13px] font-medium text-stone-500 hover:text-stone-900 transition-colors">Contact</a>
             </div>
 
-            {/* Icons + Resume */}
             <div className="flex items-center gap-3 md:gap-4">
               {profile.github && (
                 <a href={profile.github} target="_blank" rel="noreferrer" className="text-stone-400 hover:text-stone-900 transition-colors" title="GitHub">
@@ -74,33 +84,33 @@ export default async function Home() {
                   href={profile.resumeLink}
                   target="_blank"
                   rel="noreferrer"
+                  download="Resume.pdf"
                   className="text-[11px] font-semibold px-3.5 py-1.5 rounded-full border border-stone-300 text-stone-700 hover:bg-stone-900 hover:text-white hover:border-stone-900 transition-all uppercase tracking-wider"
                 >
-                  Résumé
+                  Resume
                 </a>
               )}
             </div>
           </div>
         </div>
 
-        {/* Mobile bottom nav bar */}
+        {/* Mobile nav */}
         <div className="sm:hidden flex border-t border-stone-200/60">
-          <a href="#experience" className="flex-1 text-center py-2.5 text-[12px] font-medium text-stone-500 hover:text-stone-900 hover:bg-stone-50 transition-colors">
-            Experience
-          </a>
+          <a href="#experience" className="flex-1 text-center py-2.5 text-[12px] font-medium text-stone-500 hover:text-stone-900 hover:bg-stone-50 transition-colors">Experience</a>
           <div className="w-px bg-stone-200/60" />
-          <a href="#projects" className="flex-1 text-center py-2.5 text-[12px] font-medium text-stone-500 hover:text-stone-900 hover:bg-stone-50 transition-colors">
-            Projects
-          </a>
+          <a href="#projects" className="flex-1 text-center py-2.5 text-[12px] font-medium text-stone-500 hover:text-stone-900 hover:bg-stone-50 transition-colors">Projects</a>
+          <div className="w-px bg-stone-200/60" />
+          <a href="#activities" className="flex-1 text-center py-2.5 text-[12px] font-medium text-stone-500 hover:text-stone-900 hover:bg-stone-50 transition-colors">Activities</a>
+          <div className="w-px bg-stone-200/60" />
+          <a href="#contact" className="flex-1 text-center py-2.5 text-[12px] font-medium text-stone-500 hover:text-stone-900 hover:bg-stone-50 transition-colors">Contact</a>
         </div>
       </nav>
 
-      {/* Offset untuk navbar dua baris di mobile */}
-      <main className="max-w-6xl mx-auto px-5 md:px-8 pt-[88px] sm:pt-16">
+      <main className="max-w-6xl mx-auto px-5 md:px-8 pt-[110px] sm:pt-16">
 
         {/* ─── Hero ─── */}
         <FadeIn direction="up" delay={0.1}>
-          <section className="min-h-[90vh] flex flex-col justify-center">
+          <section id="about" className="min-h-[90vh] flex flex-col justify-center">
             <div className="flex flex-col-reverse md:flex-row md:items-center md:justify-between gap-10 md:gap-16">
 
               {/* Left: Text Content */}
@@ -216,18 +226,13 @@ export default async function Home() {
                     key={exp._id}
                     className="group p-5 md:p-8 rounded-2xl bg-white border border-stone-200/80 hover:border-stone-300 hover:shadow-[0_4px_24px_rgba(0,0,0,0.06)] transition-all"
                   >
-                    {/* Tahun */}
                     <div className="text-[10px] md:text-[11px] font-semibold tracking-[0.15em] uppercase text-stone-400 mb-2.5">
                       {new Date(exp.startDate).getFullYear()} — {exp.current ? 'Present' : new Date(exp.endDate).getFullYear()}
                     </div>
-
-                    {/* Role + company — satu baris di desktop, stack di mobile */}
                     <div className="flex flex-col sm:flex-row sm:items-baseline sm:gap-3 mb-4">
                       <div className="text-base md:text-xl font-semibold text-stone-900 leading-snug tracking-[-0.02em]">{exp.role}</div>
                       <div className="text-sm font-medium text-amber-600 mt-0.5 sm:mt-0">{exp.company}</div>
                     </div>
-
-                    {/* Deskripsi — selalu di bawah */}
                     <div className="text-stone-500 leading-relaxed text-[14px] md:text-[15px]">
                       {exp.description.split('\n').some(line => line.trim().startsWith('-')) ? (
                         <ul className="space-y-1.5 list-none">
@@ -259,47 +264,95 @@ export default async function Home() {
         {projects.length > 0 && (
           <FadeIn direction="up" delay={0.3}>
             <section id="projects" className="py-16 md:py-28">
-              <div className="flex items-center gap-3 md:gap-4 mb-10 md:mb-16">
-                <span className="text-[10px] md:text-[11px] font-semibold tracking-[0.25em] uppercase text-stone-400">03</span>
-                <div className="w-8 md:w-12 h-px bg-stone-300" />
-                <h2 className="text-[12px] md:text-[13px] font-semibold tracking-[0.15em] uppercase text-stone-500">Selected Projects</h2>
+              <div className="flex items-center justify-between mb-10 md:mb-16">
+                <div className="flex items-center gap-3 md:gap-4">
+                  <span className="text-[10px] md:text-[11px] font-semibold tracking-[0.25em] uppercase text-stone-400">03</span>
+                  <div className="w-8 md:w-12 h-px bg-stone-300" />
+                  <h2 className="text-[12px] md:text-[13px] font-semibold tracking-[0.15em] uppercase text-stone-500">Selected Projects</h2>
+                </div>
+                <Link
+                  href="/projects"
+                  className="text-[12px] md:text-[13px] font-medium text-stone-500 hover:text-stone-900 transition-colors inline-flex items-center gap-1.5"
+                >
+                  View all <span>→</span>
+                </Link>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-                {projects.map((proj) => (
-                  <Link
-                    key={proj._id}
-                    href={`/projects/${proj._id}`}
-                    className="group bg-white rounded-2xl overflow-hidden border border-stone-200/80 hover:border-stone-300 hover:shadow-[0_8px_40px_rgba(0,0,0,0.08)] transition-all flex flex-col"
-                  >
-                    <div className="overflow-hidden bg-stone-100">
-                      {proj.images && proj.images.length > 0 ? (
-                        <img
-                          src={proj.images[0]}
-                          alt={proj.title}
-                          className="w-full aspect-[16/10] object-cover group-hover:scale-[1.03] transition-transform duration-700 ease-out"
-                        />
-                      ) : (
-                        <div className="w-full aspect-[16/10] bg-gradient-to-br from-stone-100 to-stone-200" />
-                      )}
-                    </div>
-
-                    <div className="p-5 md:p-7 flex flex-col flex-grow">
-                      <div className="flex items-start justify-between mb-2.5 md:mb-3">
-                        <h3 className="text-base md:text-lg font-semibold text-stone-900 leading-snug tracking-[-0.02em]">{proj.title}</h3>
-                        <span className="flex-shrink-0 ml-3 mt-0.5 text-stone-300 group-hover:text-stone-700 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all text-lg">↗</span>
-                      </div>
-                      <p className="text-stone-500 text-sm leading-relaxed flex-grow">{proj.description}</p>
-                      <div className="mt-5 md:mt-6 pt-4 md:pt-5 border-t border-stone-100">
-                        <span className="text-[10px] md:text-[11px] font-semibold tracking-[0.15em] uppercase text-stone-400 group-hover:text-stone-700 transition-colors">Read case study</span>
-                      </div>
-                    </div>
-                  </Link>
-                ))}
-              </div>
+              <ProjectsCarousel projects={projects} />
             </section>
           </FadeIn>
         )}
+
+        {/* ─── Activities ─── */}
+        {activities.length > 0 && (
+          <FadeIn direction="up" delay={0.4}>
+            <section id="activities" className="py-16 md:py-28">
+              <div className="flex items-center justify-between mb-10 md:mb-16">
+                <div className="flex items-center gap-3 md:gap-4">
+                  <span className="text-[10px] md:text-[11px] font-semibold tracking-[0.25em] uppercase text-stone-400">04</span>
+                  <div className="w-8 md:w-12 h-px bg-stone-300" />
+                  <h2 className="text-[12px] md:text-[13px] font-semibold tracking-[0.15em] uppercase text-stone-500">Activities</h2>
+                </div>
+                <Link
+                  href="/activities"
+                  className="text-[12px] md:text-[13px] font-medium text-stone-500 hover:text-stone-900 transition-colors inline-flex items-center gap-1.5"
+                >
+                  View all <span>→</span>
+                </Link>
+              </div>
+
+              <ActivitiesCarousel activities={activities} />
+            </section>
+          </FadeIn>
+        )}
+
+        {/* ─── Tech I Work With ─── */}
+        {techs.length > 0 && (
+          <FadeIn direction="up" delay={0.5}>
+            <section id="techstack" className="py-16 md:py-28">
+              <div className="text-center mb-10 md:mb-14">
+                <p className="text-[11px] md:text-[12px] font-semibold tracking-[0.25em] uppercase text-stone-400 mb-2">
+                  Tech I Work With
+                </p>
+                <div className="w-10 h-px bg-stone-300 mx-auto" />
+              </div>
+
+              <HomeTechMarquee techs={techs} />
+            </section>
+          </FadeIn>
+        )}
+
+        {/* ─── Contact ─── */}
+        <FadeIn direction="up" delay={0.6}>
+          <section id="contact" className="py-16 md:py-28">
+            <div className="flex items-center gap-3 md:gap-4 mb-10 md:mb-16">
+              <span className="text-[10px] md:text-[11px] font-semibold tracking-[0.25em] uppercase text-stone-400">
+                {techs.length > 0 ? '06' : '05'}
+              </span>
+              <div className="w-8 md:w-12 h-px bg-stone-300" />
+              <h2 className="text-[12px] md:text-[13px] font-semibold tracking-[0.15em] uppercase text-stone-500">Get In Touch</h2>
+            </div>
+
+            <div className="max-w-2xl">
+              <h3 className="text-[clamp(1.8rem,4vw,3rem)] font-semibold leading-[1.12] tracking-[-0.03em] text-stone-900 mb-6">
+                {"Let's work together."}
+              </h3>
+              <p className="text-[15px] md:text-[17px] text-stone-500 leading-relaxed mb-8">
+                Have a project in mind or want to collaborate? Feel free to reach out. I&apos;d love to hear from you.
+              </p>
+
+              {profile.email && (
+                <a
+                  href={`mailto:${profile.email}`}
+                  className="inline-flex items-center gap-3 px-6 md:px-8 py-3.5 md:py-4 rounded-full bg-stone-900 text-white text-sm md:text-base font-medium hover:bg-stone-700 transition-all hover:-translate-y-0.5 shadow-lg shadow-stone-900/20"
+                >
+                  <Mail size={18} />
+                  {profile.email}
+                </a>
+              )}
+            </div>
+          </section>
+        </FadeIn>
       </main>
 
       {/* ─── Footer ─── */}

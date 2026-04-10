@@ -1,11 +1,12 @@
 import connectToDatabase from '@/lib/mongodb';
 import Project from '@/models/Project';
-import { ArrowLeft, ExternalLink, Github } from 'lucide-react';
+import { ArrowLeft, ExternalLink, Github, Lock } from 'lucide-react';
 import FadeIn from '@/components/FadeIn';
 import Link from 'next/link';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import ImageGallery from './ImageGallery';
+import TechStackMarquee from '@/components/TechStackMarquee';
 
 export const dynamic = 'force-dynamic';
 
@@ -21,7 +22,8 @@ export async function generateMetadata({ params }) {
 export default async function ProjectDetailPage({ params }) {
   const { id } = await params;
   await connectToDatabase();
-  const project = await Project.findById(id).lean();
+  const projectDoc = await Project.findById(id).lean();
+  const project = projectDoc ? JSON.parse(JSON.stringify(projectDoc)) : null;
 
   if (!project) {
     return (
@@ -42,6 +44,7 @@ export default async function ProjectDetailPage({ params }) {
   }
 
   const images = project.images ?? [];
+  const techStack = project.techStack ?? [];
 
   return (
     <div
@@ -138,7 +141,7 @@ export default async function ProjectDetailPage({ params }) {
               {project.description}
             </p>
 
-            <div className="flex gap-3 mt-8">
+            <div className="flex flex-wrap items-center gap-3 mt-8">
               {project.demoUrl && (
                 <a
                   href={project.demoUrl}
@@ -159,12 +162,27 @@ export default async function ProjectDetailPage({ params }) {
                   <Github size={14} /> Source Code
                 </a>
               )}
+              {project.proprietary && (
+                <span className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-amber-50 border border-amber-200 text-amber-700 text-sm font-semibold">
+                  <Lock size={13} /> Proprietary Project
+                </span>
+              )}
             </div>
           </section>
 
           {/* ── Gallery ── */}
-          {images.length > 0 && (
-            <ImageGallery images={images} title={project.title} />
+          {(images.length > 0 || project.youtubeUrl || project.videoUrl) && (
+            <ImageGallery 
+              images={images} 
+              title={project.title} 
+              youtubeUrl={project.youtubeUrl}
+              videoUrl={project.videoUrl}
+            />
+          )}
+
+          {/* ── Tech Stack ── */}
+          {techStack.length > 0 && (
+            <TechStackMarquee techStack={techStack} />
           )}
 
           {/* ── Markdown Content ── */}
@@ -191,4 +209,13 @@ export default async function ProjectDetailPage({ params }) {
       </FadeIn>
     </div>
   );
+}
+
+function getYouTubeEmbedUrl(url) {
+  if (!url) return null;
+  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+  const match = url.match(regExp);
+  return (match && match[2].length === 11)
+    ? `https://www.youtube.com/embed/${match[2]}`
+    : url; // fallback
 }

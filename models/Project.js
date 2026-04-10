@@ -32,6 +32,27 @@ const projectSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    proprietary: {
+      type: Boolean,
+      default: false,
+    },
+    techStack: {
+      type: [
+        {
+          name: { type: String, required: true },
+          logo: { type: String, default: '' },
+        },
+      ],
+      default: [],
+    },
+    youtubeUrl: {
+      type: String,
+      trim: true,
+    },
+    videoUrl: {
+      type: String,
+      trim: true,
+    },
   },
   { timestamps: true }
 );
